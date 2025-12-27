@@ -23,7 +23,6 @@ def keyword_score(customer_text, agent_text):
     agent_keywords=keyword_extractor(agent_text)
 
     matched_words=customer_keywords.intersection(agent_keywords)
-
     if len(customer_keywords) == 0:
         matched_score = 0.0
     else:
@@ -64,7 +63,7 @@ def similarity_score(customer_list:list, agent_list:list):
     
     # Normalize cosine similarity from [-1, 1] to [0, 1] range
     # Using formula: (score + 1) / 2
-    normalized_score = abs(weight_semantic_score)
+    normalized_score = (weight_semantic_score+1)/2
 
     return round(normalized_score, 2)
 
