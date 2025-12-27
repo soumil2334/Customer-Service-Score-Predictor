@@ -10,13 +10,13 @@ from Evaluation_metrics.Talk_to_listen import talk_to_listen
 def Normalize_attention(customer_utterance_string, agent_utterance_string, customer_utterance_list, agent_utterance_list):
     '''
     Calculate attention metrics between customer and agent utterances.
-    Args:
-        customer_utterance_string: Combined string of all customer utterances
+
+    Args: customer_utterance_string: Combined string of all customer utterances
         agent_utterance_string: Combined string of all agent utterances
         customer_utterance_list: List of customer utterance dictionaries
         agent_utterance_list: List of agent utterance dictionaries
-    Returns:
-        Dictionary with matched_score, similarity_score, and overall_attention
+
+    Returns: Dictionary with matched_score, similarity_score, and overall_attention
     '''
     matched_score = keyword_score(customer_utterance_string, agent_utterance_string)
     
@@ -32,16 +32,15 @@ def Normalize_attention(customer_utterance_string, agent_utterance_string, custo
     return attention_dict
 
 
+
 def Empathy(dialogue_diarized_string):
-    """
+    '''
     Calculate empathy score from dialogue.
-    
-    Args:
-        dialogue_diarized_string: String with CUSTOMER and AGENT labels
-    
-    Returns:
-        Final empathy score (0-3, sum of three dimensions)
-    """
+
+    Args: dialogue_diarized_string: String with CUSTOMER and AGENT labels
+
+    Returns: Final empathy score)
+    '''
     empathy_dict = empathy_check(dialogue_diarized_string)
 
     emotion_recognition = float(empathy_dict.get('emotion_recognition', 0))
@@ -49,41 +48,37 @@ def Empathy(dialogue_diarized_string):
     support_intent = float(empathy_dict.get('support_intent', 0))
 
     final_empathy_score = emotion_recognition + emotion_validation + support_intent
-    return final_empathy_score
+    return final_empathy_score/3
 
 
 def Greet_Ownership(agent_utterance_list):
-    """
+    '''
     Calculate greeting and ownership scores.
     
-    Args:
-        agent_utterance_list: List of agent utterance dictionaries
+    Args: agent_utterance_list: List of agent utterance dictionaries
     
-    Returns:
-        Tuple of (greet_score, ownership_score)
-    """
+    Returns: Tuple of (greet_score, ownership_score)
+    '''
     greet_score = check_greetings(agent_utterance_list)
     ownership_score = check_ownership(agent_utterance_list)
     return greet_score, ownership_score
 
 
-def Interuptions(dialogue_dict, dialogue_string):
-    """
+def Interuptions(dialogue_diarized_dict, dialogue_string):
+    '''
     Check for interruptions in the dialogue.
-    
     Args:
         dialogue_dict: Full dialogue dictionary with utterances
         dialogue_string: String representation of dialogue
-    
     Returns:
         0 if no interruptions, 1 if interruptions detected
-    """
-    interuption_bool = interuptions(dialogue_dict, dialogue_string)
+    '''
+    interuption_bool = interuptions(dialogue_diarized_dict, dialogue_string)
     
     if interuption_bool == False:
-        return 0
-    elif interuption_bool == True:
         return 1
+    elif interuption_bool == True:
+        return 0
 
 
 def Satisfaction(customer_utterance_list, portion=0.3):

@@ -69,7 +69,6 @@ IMPLICIT_ACCEPTANCE_WORDS = [
     "confirmed","sounds","works","working","clear","clarified","resolved", "fixed","done","completed",
     "helpful","useful","good","better"]
 
-# Implicit satisfaction patterns for semantic similarity
 IMPLICIT_SATISFACTION_PATTERNS = [
     "okay thanks", "okay thank you", "alright thanks", "sure thanks", "got it thanks",
     "that works", "sounds good", "that makes sense", "i understand", "i see",
@@ -80,7 +79,6 @@ IMPLICIT_SATISFACTION_PATTERNS = [
     "perfect", "great", "excellent", "wonderful", "awesome"
 ]
 
-# Negative indicators that suggest dissatisfaction even with implicit words
 NEGATIVE_CONTEXT_INDICATORS = [
     "but", "however", "still", "yet", "unfortunately", "disappointed", "frustrated",
     "confused", "not working", "doesn't work", "can't", "won't", "unable",
