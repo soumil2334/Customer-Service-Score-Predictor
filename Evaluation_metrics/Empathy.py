@@ -2,7 +2,7 @@ import requests
 import json
 
 def empathy_check(dialogue_diarized_string):
-#Checking if everything is committed?
+
     prompt=f"""
 You are an impartial quality auditor evaluating empathy in a customer service call.
 
