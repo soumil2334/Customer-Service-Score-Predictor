@@ -67,7 +67,7 @@ IMPLICIT_ACCEPTANCE_WORDS = [
     "see", "yes", "yeah", "yep", "correct", "exactly", "true", "fair", "cool", "great",
     "perfect", "thanks", "thank", "appreciate", "noted", "acknowledged", "accepted", "agree", "agreed", "confirm",
     "confirmed","sounds","works","working","clear","clarified","resolved", "fixed","done","completed",
-    "helpful","useful","good","better","satisfied"]
+    "helpful","useful","good","better"]
 
 # Implicit satisfaction patterns for semantic similarity
 IMPLICIT_SATISFACTION_PATTERNS = [
