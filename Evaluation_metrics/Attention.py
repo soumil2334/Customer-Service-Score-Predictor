@@ -24,7 +24,6 @@ def keyword_score(customer_text, agent_text):
 
     matched_words=customer_keywords.intersection(agent_keywords)
 
-    # Normalize to [0, 1] range, handle edge case when customer_keywords is empty
     if len(customer_keywords) == 0:
         matched_score = 0.0
     else:

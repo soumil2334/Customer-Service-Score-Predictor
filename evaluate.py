@@ -1,64 +1,121 @@
 import math
-from torch.nn import attention
 from transcription_pipeline import AudioTranscription
-from Evaluation_metrics.Attention import keyword_extractor, keyword_score, similarity_score, overall_attention
+from Evaluation_metrics.Attention import keyword_score, similarity_score, overall_attention
 from Evaluation_metrics.Empathy import empathy_check
 from Evaluation_metrics.Greetings_ownership import check_greetings, check_ownership
 from Evaluation_metrics.Interruption import interuptions
-from Evaluation_metrics.satisfaction import keywords_func, sentiment_score, explicit_check, implicit_check
+from Evaluation_metrics.satisfaction import explicit_check, implicit_check
 from Evaluation_metrics.Talk_to_listen import talk_to_listen
 
-def Normalize_attention(customer_utterance_string, agent_utterance_string, customer_utterance_ist, agent_utterance_list):
-    matched_score=keyword_score(customer_utterance_string, agent_utterance_string)
+def Normalize_attention(customer_utterance_string, agent_utterance_string, customer_utterance_list, agent_utterance_list):
+    '''
+    Calculate attention metrics between customer and agent utterances.
+    Args:
+        customer_utterance_string: Combined string of all customer utterances
+        agent_utterance_string: Combined string of all agent utterances
+        customer_utterance_list: List of customer utterance dictionaries
+        agent_utterance_list: List of agent utterance dictionaries
+    Returns:
+        Dictionary with matched_score, similarity_score, and overall_attention
+    '''
+    matched_score = keyword_score(customer_utterance_string, agent_utterance_string)
     
-    similarity_score=similarity_score(customer_utterance_list, agent_utterance_list)
+    sim_score = similarity_score(customer_utterance_list, agent_utterance_list)
     
-    overall_attention=overall_attention(similarity_score, matched_score)
+    overall_attn = overall_attention(sim_score, matched_score)
 
-    attention_dict={
+    attention_dict = {
         'matched_score': matched_score,
-        'similarity_score': similarity_score,
-        'overall_attention': overall_attention
+        'similarity_score': sim_score,
+        'overall_attention': overall_attn
     }
     return attention_dict
 
 
 def Empathy(dialogue_diarized_string):
-    empathy_dict=empathy_check(dialogue_string)
+    """
+    Calculate empathy score from dialogue.
+    
+    Args:
+        dialogue_diarized_string: String with CUSTOMER and AGENT labels
+    
+    Returns:
+        Final empathy score (0-3, sum of three dimensions)
+    """
+    empathy_dict = empathy_check(dialogue_diarized_string)
 
-    emotion_recognition=int(empathy_dict.get('emotion_recognition'))
-    emotion_validation=int(empathy_dict.get('emotion_validation'))
-    support_intent=int(empathy_dict.get('support_intent'))
+    emotion_recognition = float(empathy_dict.get('emotion_recognition', 0))
+    emotion_validation = float(empathy_dict.get('emotion_validation', 0))
+    support_intent = float(empathy_dict.get('support_intent', 0))
 
-    final_empathy_score= emotion_recognition+emotion_validation+support_intent
+    final_empathy_score = emotion_recognition + emotion_validation + support_intent
     return final_empathy_score
 
 
 def Greet_Ownership(agent_utterance_list):
-    greet_score=check_greetings(agent_list)
-
-    ownership_score=check_ownership(agent_list)
+    """
+    Calculate greeting and ownership scores.
+    
+    Args:
+        agent_utterance_list: List of agent utterance dictionaries
+    
+    Returns:
+        Tuple of (greet_score, ownership_score)
+    """
+    greet_score = check_greetings(agent_utterance_list)
+    ownership_score = check_ownership(agent_utterance_list)
     return greet_score, ownership_score
 
 
 def Interuptions(dialogue_dict, dialogue_string):
-    interuption_bool=interuptions(dialogue_dict, dialogue_string)
+    """
+    Check for interruptions in the dialogue.
     
-    if interuption_bool==False:
+    Args:
+        dialogue_dict: Full dialogue dictionary with utterances
+        dialogue_string: String representation of dialogue
+    
+    Returns:
+        0 if no interruptions, 1 if interruptions detected
+    """
+    interuption_bool = interuptions(dialogue_dict, dialogue_string)
+    
+    if interuption_bool == False:
         return 0
-    elif interuption_bool==True:
-        return 1 
+    elif interuption_bool == True:
+        return 1
 
 
 def Satisfaction(customer_utterance_list, portion=0.3):
-    explicit_check=explicit_check(customer_dict_list, portion=0.35)
-    implicit_check=implicit_check(customer_dict_list, portion=0.35)
-    final_satisfaction_score=(explicit_check+implicit_check)/2
+    """
+    Calculate customer satisfaction score.
+    
+    Args:
+        customer_utterance_list: List of customer utterance dictionaries
+        portion: Portion of conversation to analyze (default 0.3 = last 30%)
+    
+    Returns:
+        Final satisfaction score (0-1)
+    """
+    explicit_score = explicit_check(customer_utterance_list, portion=0.35)
+    implicit_score = implicit_check(customer_utterance_list, portion=0.35)
+    final_satisfaction_score = (explicit_score + implicit_score) / 2
     return final_satisfaction_score
 
-def Talk_to_listen(dialogue_string, dialogue_dict):
-    t2l=talk_to_listen(dialogue_string, dialogue_dict)
-    if t2l>0.7 OR t2l<0.3:
+
+def Talk_to_listen_ratio(dialogue_string, dialogue_dict):
+    """
+    Calculate talk-to-listen ratio score.
+    
+    Args:
+        dialogue_string: String representation of dialogue
+        dialogue_dict: Full dialogue dictionary with utterances
+    
+    Returns:
+        0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
+    """
+    t2l = talk_to_listen(dialogue_string, dialogue_dict)
+    if t2l > 0.7 or t2l < 0.3:
         return 0
     else:
         return 1 
