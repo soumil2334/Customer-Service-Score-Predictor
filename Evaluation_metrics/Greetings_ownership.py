@@ -88,22 +88,28 @@ greetings_embeddings=model.encode(
 
 def check_greetings(
     agent_list:list[dict])-> int:
-
+    final_value=0
     for i, line in enumerate(agent_list):
-        if i<5:
+        if i<5: #checking if the agent greeted in the first 5 lines
             sentence_embedding=model.encode(
                 sentences=line.get('text'),
                 normalize_embeddings=True
             )
             similarity_matrix=cosine_similarity(
-                [sentence_embedding],
-                greetings_embeddings
-            )
-            average_score=np.mean(similarity_matrix)   
-            if average_score<0:
-                average_score=0     
+                [sentence_embedding], #(1,384)
+                greetings_embeddings  #(3,384)
+            ) 
+            similarity_matrix=similarity_matrix.flatten()
+            max_value=np.max(similarity_matrix)
+            if max_value>0.65:
+                final_value=1
+                break
+
+            #Let's say greeting_embeddings is for 3 sentences so the greeting embeddings will have the shape (3, 384)
+            #and the sentence embedding will have a shape (384,) so after [sentence_embedding] it will be (1, 384)\
+            # cosine similarity will be of shape (1, 3) eg. [0.45, 0.78, 0,12] 
     
-    return average_score
+    return final_value
 
 ownership_embeddings=model.encode(
     sentences=CANONICAL_OWNERSHIP,
