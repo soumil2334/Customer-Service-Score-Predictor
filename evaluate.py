@@ -1,5 +1,4 @@
 import math
-from transcription_pipeline import AudioTranscription
 from Evaluation_metrics.Attention import keyword_score, similarity_score, overall_attention
 from Evaluation_metrics.Empathy import empathy_check
 from Evaluation_metrics.Greetings_ownership import check_greetings, check_ownership
@@ -15,7 +14,6 @@ def Normalize_attention(customer_utterance_string, agent_utterance_string, custo
         agent_utterance_string: Combined string of all agent utterances
         customer_utterance_list: List of customer utterance dictionaries
         agent_utterance_list: List of agent utterance dictionaries
-
     Returns: Dictionary with matched_score, similarity_score, and overall_attention
     '''
     matched_score = keyword_score(customer_utterance_string, agent_utterance_string)
@@ -41,7 +39,7 @@ def Empathy(dialogue_diarized_string):
 
     Returns: Final empathy score)
     '''
-    empathy_dict = empathy_check(dialogue_diarized_string)
+    empathy_dict = empathy_check(dialogue_diarized_string:str)
 
     emotion_recognition = float(empathy_dict.get('emotion_recognition', 0))
     emotion_validation = float(empathy_dict.get('emotion_validation', 0))
@@ -64,22 +62,14 @@ def Greet_Ownership(agent_utterance_list):
     return greet_score, ownership_score
 
 
-def Interuptions(dialogue_diarized_dict, dialogue_string):
-    '''
-    Check for interruptions in the dialogue.
-    Args:
-        dialogue_dict: Full dialogue dictionary with utterances
-        dialogue_string: String representation of dialogue
-    Returns:
-        0 if no interruptions, 1 if interruptions detected
-    '''
-    interuption_bool = interuptions(dialogue_diarized_dict, dialogue_string)
+def Interuptions(corrected_utterances):
     
-    if interuption_bool == False:
-        return 1
-    elif interuption_bool == True:
-        return 0
-
+    for i,u in enumerate(corrected_utterances):
+        if i+1 < len(corrected_utterances) and u.get('speaker')=='Customer' and corrected_utterances[i+1]['speaker']=='Customer Service Agent':
+            if corrected_utterances[i+1]['start']-u.get('end')<300:
+                interuption_bool=True
+                
+    return interuption_bool
 
 def Satisfaction(customer_utterance_list, portion=0.3):
     """

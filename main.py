@@ -1,8 +1,3 @@
-"""
-Main integration script for Customer Service Score Predictor
-This script demonstrates the complete workflow from audio file to evaluation scores.
-"""
-
 import os
 import json
 from dotenv import load_dotenv
