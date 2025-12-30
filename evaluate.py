@@ -39,7 +39,7 @@ def Empathy(dialogue_diarized_string):
 
     Returns: Final empathy score)
     '''
-    empathy_dict = empathy_check(dialogue_diarized_string:str)
+    empathy_dict = empathy_check(dialogue_diarized_string=dialogue_diarized_string)
 
     emotion_recognition = float(empathy_dict.get('emotion_recognition', 0))
     emotion_validation = float(empathy_dict.get('emotion_validation', 0))
@@ -82,8 +82,8 @@ def Satisfaction(customer_utterance_list, portion=0.3):
     Returns:
         Final satisfaction score (0-1)
     """
-    explicit_score = explicit_check(customer_utterance_list, portion=0.35)
-    implicit_score = implicit_check(customer_utterance_list, portion=0.35)
+    explicit_score = explicit_check(customer_utterance_list, portion=portion)
+    implicit_score = implicit_check(customer_utterance_list, portion=portion)
     final_satisfaction_score = (explicit_score + implicit_score) / 2
     return final_satisfaction_score
 
