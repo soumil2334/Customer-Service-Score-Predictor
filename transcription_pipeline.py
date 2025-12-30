@@ -55,7 +55,7 @@ class AudioTranscription:
             )
         return transcription.json()['id']
 
-    def get_transcript(self, transcription_id:str, saved_file_path:str):
+    def get_transcript(self, transcription_id:str):
         '''
         Retrieving the transcript
 
@@ -80,8 +80,6 @@ class AudioTranscription:
 
 
             if status=='completed':
-                with open(saved_file_path, 'w') as f:
-                    json.dump(transcription_process.json(), f, indent=2)
                 break
 
             if status=='error':
