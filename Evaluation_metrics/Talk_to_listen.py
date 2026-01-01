@@ -9,13 +9,14 @@ def talk_to_listen(agent_utterance_list, customer_utterance_list)-> int:
     agent_word_count=0    
     for a in agent_utterance_list:
         agent_text=a.get('text')
-        agent_words=agent_text.split(' ')
-        agent_word_countword_count+=len(agent_words)
+        agent_words=agent_text.split()
+        agent_word_count+=len(agent_words)
     
     customer_word_count=0
     for c in customer_utterance_list:
         customer_text=c.get('text')
-        customer_words=customer_text.split(' ')
-        customer_word_count+=len(customer_words
-
+        customer_words=customer_text.split()
+        customer_word_count+=len(customer_words)
+    
+    return round(customer_word_count/agent_word_count, 2)
 

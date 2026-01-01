@@ -116,25 +116,34 @@ ownership_embeddings=model.encode(
     normalize_embeddings=True
 )
 
-def check_ownership(
-    agent_list:list[dict])-> bool:
-
-    ownership_bool=False
-
+def check_ownership(agent_list:list[dict])-> float:
+    if not agent_list:
+        return 0.0
+    
+    all_scores = []
+    
     for line in agent_list:
-        sentence_embedding=model.encode(
+        sentence_embedding = model.encode(
             sentences=line.get('text'),
             normalize_embeddings=True
         )
-        similarity_matrix=cosine_similarity(
-                [sentence_embedding],
-                ownership_embeddings)
-
-        average_score=np.mean(similarity_matrix)   
-        if average_score<0:
-            average_score=0     
+        similarity_matrix = cosine_similarity(
+            [sentence_embedding],
+            ownership_embeddings
+        )
+        
+        # Get average similarity for this utterance
+        utterance_score = np.mean(similarity_matrix)
+        all_scores.append(utterance_score)
     
-    return average_score
+    if not all_scores:
+        return 0.0
+    
+    average_score = np.mean(all_scores)
+    
+    # Normalize from [-1, 1] to [0, 1] and ensure bounds
+    normalized_score = (average_score + 1) / 2
+    return max(0.0, min(1.0, normalized_score))
 
 
 

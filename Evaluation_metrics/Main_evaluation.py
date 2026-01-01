@@ -63,11 +63,22 @@ def Greet_Ownership(agent_utterance_list):
 
 
 def Interuptions(corrected_utterances):
+    """
+    Check for interruptions in the conversation.
     
-    for i,u in enumerate(corrected_utterances):
-        if i+1 < len(corrected_utterances) and u.get('speaker')=='Customer' and corrected_utterances[i+1]['speaker']=='Customer Service Agent':
-            if corrected_utterances[i+1]['start']-u.get('end')<300:
-                interuption_bool=True
+    Args:
+        corrected_utterances: List of utterance dictionaries with speaker labels
+    
+    Returns:
+        bool: True if interruption detected, False otherwise
+    """
+    interuption_bool = False  # Initialize to False (no interruption by default)
+    
+    for i, u in enumerate(corrected_utterances):
+        if i+1 < len(corrected_utterances) and u.get('speaker') == 'Customer' and corrected_utterances[i+1]['speaker'] == 'Customer Service Agent':
+            if corrected_utterances[i+1]['start'] - u.get('end') < 300:
+                interuption_bool = True
+                break  # Found interruption, no need to continue
                 
     return interuption_bool
 

@@ -207,8 +207,6 @@ def calculate_final_score(scores: dict):
     print("=" * 60)
     
     # Normalize scores to 0-1 range and calculate weighted average
-    # You can adjust these weights based on your priorities
-    
     attention_score = scores['attention']['overall_attention']  # Already 0-1
     empathy_score = scores['empathy'] / 3.0  # Normalize from 0-3 to 0-1
     greetings_score = scores['greetings']  # Already 0-1
@@ -217,16 +215,43 @@ def calculate_final_score(scores: dict):
     satisfaction_score = scores['satisfaction']  # Already 0-1
     talk_listen_score = scores['talk_to_listen']  # Already 0-1
     
-    # Weighted average (adjust weights as needed)
+    # ========================================================================
+    # METRIC WEIGHTS - IMPORTANT: Adjust based on your business priorities
+    # ========================================================================
+    # These weights determine how much each metric contributes to the final score.
+    # 
+    # Current weights (default/placeholder - needs validation):
+    # - Empathy (20%): High weight - emotional connection is critical
+    # - Satisfaction (20%): High weight - ultimate customer outcome
+    # - Attention (15%): Medium weight - agent must listen to customer
+    # - Ownership (15%): Medium weight - agent takes responsibility
+    # - Greetings (10%): Lower weight - important but less critical
+    # - Interruptions (10%): Lower weight - negative behavior indicator
+    # - Talk-to-Listen (10%): Lower weight - communication balance
+    #
+    # TO DETERMINE PROPER WEIGHTS:
+    # 1. Business priorities: What matters most for your use case?
+    # 2. Research/benchmarks: Use industry standards or academic research
+    # 3. Data analysis: Correlate metrics with actual customer outcomes
+    # 4. Expert consultation: Get input from customer service experts
+    # 5. A/B testing: Test different weight combinations and measure results
+    #
+    # NOTE: Weights must sum to 1.0 (100%)
+    # ========================================================================
     weights = {
-        'attention': 0.15,
-        'empathy': 0.20,
-        'greetings': 0.10,
-        'ownership': 0.15,
-        'interruptions': 0.10,
-        'satisfaction': 0.20,
-        'talk_to_listen': 0.10
+        'attention': 0.15,      # Medium priority: Agent listens to customer
+        'empathy': 0.20,        # High priority: Emotional connection
+        'greetings': 0.10,      # Lower priority: Professional courtesy
+        'ownership': 0.15,      # Medium priority: Taking responsibility
+        'interruptions': 0.10,  # Lower priority: Negative behavior
+        'satisfaction': 0.20,   # High priority: Customer outcome
+        'talk_to_listen': 0.10  # Lower priority: Communication balance
     }
+    
+    # Validate weights sum to 1.0
+    total_weight = sum(weights.values())
+    if abs(total_weight - 1.0) > 0.001:  # Allow small floating point errors
+        raise ValueError(f"Weights must sum to 1.0, but sum to {total_weight}")
     
     final_score = (
         attention_score * weights['attention'] +
