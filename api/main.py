@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import logging
 
  
-from transcription_pipeline import AudioTranscription
+from Transcript_actions.transcription_pipeline import AudioTranscription
 from Transcript_actions.Speaker_classification import (
     find_speaker, 
     String_4_Semantic_analysis, 
