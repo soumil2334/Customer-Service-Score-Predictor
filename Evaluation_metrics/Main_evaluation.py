@@ -63,15 +63,13 @@ def Greet_Ownership(agent_utterance_list):
 
 
 def Interuptions(corrected_utterances):
-    """
+    '''
     Check for interruptions in the conversation.
     
-    Args:
-        corrected_utterances: List of utterance dictionaries with speaker labels
+    Args: corrected_utterances: List of utterance dictionaries with speaker labels
     
-    Returns:
-        bool: True if interruption detected, False otherwise
-    """
+    Returns: bool: True if interruption detected, False otherwise
+    '''
     interuption_bool = False  # Initialize to False (no interruption by default)
     
     for i, u in enumerate(corrected_utterances):
@@ -83,16 +81,13 @@ def Interuptions(corrected_utterances):
     return interuption_bool
 
 def Satisfaction(customer_utterance_list, portion=0.3):
-    """
+    '''
     Calculate customer satisfaction score.
     
-    Args:
-        customer_utterance_list: List of customer utterance dictionaries
-        portion: Portion of conversation to analyze (default 0.3 = last 30%)
+    Args: customer_utterance_list: List of customer utterance dictionaries, portion: Portion of conversation to analyze (default 0.3 = last 30%)
     
-    Returns:
-        Final satisfaction score (0-1)
-    """
+    Returns: Final satisfaction score (0-1)
+    '''
     explicit_score = explicit_check(customer_utterance_list, portion=portion)
     implicit_score = implicit_check(customer_utterance_list, portion=portion)
     final_satisfaction_score = (explicit_score + implicit_score) / 2
@@ -100,16 +95,13 @@ def Satisfaction(customer_utterance_list, portion=0.3):
 
 
 def Talk_to_listen_ratio(dialogue_string, dialogue_dict):
-    """
+    '''
     Calculate talk-to-listen ratio score.
     
-    Args:
-        dialogue_string: String representation of dialogue
-        dialogue_dict: Full dialogue dictionary with utterances
+    Args: dialogue_string: String representation of dialogue, dialogue_dict: Full dialogue dictionary with utterances
     
-    Returns:
-        0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
-    """
+    Returns: 0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
+    '''
     t2l = talk_to_listen(dialogue_string, dialogue_dict)
     if t2l > 0.7 or t2l < 0.3:
         return 0
