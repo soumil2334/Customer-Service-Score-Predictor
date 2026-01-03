@@ -13,6 +13,8 @@ logging.basicConfig(level=logging.DEBUG, format= (
 logger=logging.getLogger(__name__)
 
 model=SentenceTransformer("all-MiniLM-L6-v2")
+
+#Cross Encode for Entailment Score
 encoder_model=CrossEncoder('cross-encoder/nli-deberta-v3-base')
 
 nlp=spacy.load("en_core_web_sm")
@@ -64,8 +66,6 @@ def similarity_score(customer_list:list, agent_list:list):
         embeddings1=model.encode(text1, normalize_embeddings=True)
         embeddings2=model.encode(text2, normalize_embeddings=True)
 
-        
-
         score=cosine_similarity(embeddings1, embeddings2)[0][0]
         count.append(score)
 
@@ -92,6 +92,6 @@ def similarity_score(customer_list:list, agent_list:list):
 
 #takingg mean of both the values
 
-def overall_attention(similarity_score, keyword_score):
-    return (similarity_score+keyword_score)/2
+def overall_attention(similarity_score, keyword_score, paraphrasing_score):
+    return round((similarity_score+keyword_score+paraphrasing_score)/3, 2)
 

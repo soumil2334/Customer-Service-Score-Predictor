@@ -1,5 +1,5 @@
 import math
-from Evaluation_metrics.Attention import keyword_score, similarity_score, overall_attention
+from Evaluation_metrics.Attention import keyword_score, Paraphrasing_check, similarity_score, overall_attention
 from Evaluation_metrics.Empathy import empathy_check
 from Evaluation_metrics.Greetings_ownership import check_greetings, check_ownership
 from Evaluation_metrics.Interruption import interuptions
@@ -17,14 +17,15 @@ def Normalize_attention(customer_utterance_string, agent_utterance_string, custo
     Returns: Dictionary with matched_score, similarity_score, and overall_attention
     '''
     matched_score = keyword_score(customer_utterance_string, agent_utterance_string)
-    
     sim_score = similarity_score(customer_utterance_list, agent_utterance_list)
-    
-    overall_attn = overall_attention(sim_score, matched_score)
+    paraphrasing_score=Paraphrasing_check(customer_utterance_string, agent_utterance_string)
+
+    overall_attn = overall_attention(sim_score, matched_score, paraphrasing_score)
 
     attention_dict = {
         'matched_score': matched_score,
         'similarity_score': sim_score,
+        'paraphrasing_score': paraphrasing_score,
         'overall_attention': overall_attn
     }
     return attention_dict
