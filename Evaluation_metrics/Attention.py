@@ -1,21 +1,33 @@
 import spacy
+import logging
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 import math
 
+logging.basicConfig(level=logging.DEBUG, format= (
+    "%(asctime)s | %(levelname)s | "
+    "%(filename)s:%(lineno)d | "
+    "%(funcName)s | %(message)s "
+))
+                    
+logger=logging.getLogger(__name__)
+
 model=SentenceTransformer("all-MiniLM-L6-v2")
+encoder_model=CrossEncoder('cross-encoder/nli-deberta-v3-base')
 
 nlp=spacy.load("en_core_web_sm")
 
 def keyword_extractor(text :str):
     doc=nlp(text.lower())
     keywords=set()
-
-    for words in doc:
-        if words.pos_ in {'NOUN', 'ADJ', 'VERB'}:
-            if not words.is_stop and not words.is_punct:
-                keywords.add(words.lemma_)
-
+    try:
+        for words in doc:
+            if words.pos_ in {'NOUN', 'ADJ', 'VERB'}:
+                if not words.is_stop and not words.is_punct:
+                    keywords.add(words.lemma_)
+    except Exception:
+        logger.exception("Keyword extractor failed")
+        raise
     return keywords
 
 def keyword_score(customer_text, agent_text):
@@ -29,9 +41,18 @@ def keyword_score(customer_text, agent_text):
         matched_score = len(matched_words) / len(customer_keywords)
     return matched_score
 
+def Paraphrasing_check(customer_text, agent_text):
+    try:
+        entailment_score=encoder_model(agent_text, customer_text)
+    except Exception:
+        logger.exception("Paraphrasing failed")
+        raise
+    return entailment_score
+
 
 def similarity_score(customer_list:list, agent_list:list):
     semantic_score_sum=0
+    entailment_score=[]
     count=[]
     n=0
     for i, texts in enumerate(customer_list):
@@ -39,9 +60,11 @@ def similarity_score(customer_list:list, agent_list:list):
             continue
         text1=customer_list[i-1].get('text')+customer_list[i].get('text')+customer_list[i+1].get('text')
         text2=agent_list[i-1].get('text')+agent_list[i].get('text')+agent_list[i+1].get('text')
-
+        
         embeddings1=model.encode(text1, normalize_embeddings=True)
         embeddings2=model.encode(text2, normalize_embeddings=True)
+
+        
 
         score=cosine_similarity(embeddings1, embeddings2)[0][0]
         count.append(score)
