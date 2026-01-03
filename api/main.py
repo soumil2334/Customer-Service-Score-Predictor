@@ -53,11 +53,10 @@ def Metrics(API_key:str, temp_path1:str):
         customer_utterance_list, customer_utterance_string=customer_list_dict(corrected_list=diarized_utterance_list)
         agent_utterance_list, agent_utterance_string=agent_list_dict(corrected_list=diarized_utterance_list)
     
-    # attention_dict = {
-    #     'matched_score': matched_score,
-    #     'similarity_score': sim_score,
-    #     'overall_attention': overall_attn
-    # }
+        # attention_dict = {
+        #     'matched_score': matched_score,
+        #     'similarity_score': sim_score,
+        #     'overall_attention': overall_attn}
 
         logger.info('Calculating the various metrics')
         Attention_dict=Normalize_attention(customer_utterance_string, agent_utterance_string, customer_utterance_list, agent_utterance_list)
