@@ -63,25 +63,10 @@ def Greet_Ownership(agent_utterance_list):
     return greet_score, ownership_score
 
 
-def Interuptions(corrected_utterances):
-    """
-    Check for interruptions in the conversation.
-    
-    Args:
-        corrected_utterances: List of utterance dictionaries with speaker labels
-    
-    Returns:
-        bool: True if interruption detected, False otherwise
-    """
-    interuption_bool = False  # Initialize to False (no interruption by default)
-    
-    for i, u in enumerate(corrected_utterances):
-        if i+1 < len(corrected_utterances) and u.get('speaker') == 'Customer' and corrected_utterances[i+1]['speaker'] == 'Customer Service Agent':
-            if corrected_utterances[i+1]['start'] - u.get('end') < 300:
-                interuption_bool = True
-                break  # Found interruption, no need to continue
-                
-    return interuption_bool
+def Interuptions(corrected_utterances, tolerance):
+    '''Interuption_score represents the number of time the speaker was interupted 
+    and the interuption_time represenets hte time when the agent was interupted'''
+    interuption_score, interuption_time=interuptions(corrected_utterances, tolerance)
 
 def Satisfaction(customer_utterance_list, portion=0.3):
     """
@@ -104,19 +89,5 @@ def Satisfaction(customer_utterance_list, portion=0.3):
     return final_satisfaction_score, trajectory
 
 
-def Talk_to_listen_ratio(dialogue_string, dialogue_dict):
-    """
-    Calculate talk-to-listen ratio score.
-    
-    Args:
-        dialogue_string: String representation of dialogue
-        dialogue_dict: Full dialogue dictionary with utterances
-    
-    Returns:
-        0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
-    """
-    t2l = talk_to_listen(dialogue_string, dialogue_dict)
-
-    if t2l < 0.5:
-        print(f'This clearly states that the Agent was trying to resolve the issue')
-    
+# def Talk_to_listen_ratio(dialogue_string, dialogue_dict):
+   

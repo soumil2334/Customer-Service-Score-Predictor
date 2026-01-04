@@ -1,4 +1,4 @@
-def talk_to_listen(agent_utterance_list, customer_utterance_list)-> int:
+def talk_to_listen(agent_utterance_list, customer_utterance_list)-> float:
     """
     > 0.7 → Customer dominates → agent may not be guiding to resolution
 
@@ -6,17 +6,24 @@ def talk_to_listen(agent_utterance_list, customer_utterance_list)-> int:
 
     < 0.3 → Agent dominating → potential over-talking
     """
-    agent_word_count=0    
+    agent_time=0
+    customer_time=0
+
     for a in agent_utterance_list:
-        agent_text=a.get('text')
-        agent_words=agent_text.split()
-        agent_word_count+=len(agent_words)
+        start=a.get('start')
+        end=a.get('end')
+        total=end-start
+
+        agent_time+=total
     
-    customer_word_count=0
     for c in customer_utterance_list:
-        customer_text=c.get('text')
-        customer_words=customer_text.split()
-        customer_word_count+=len(customer_words)
+        start=a.get('start')
+        end=a.get('end')
+        total=end-start
+
+        customer_time+=total
     
-    return round(customer_word_count/agent_word_count, 2)
+    ratio=customer_time/agent_time
+
+    return round(ratio, 2)
 
