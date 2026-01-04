@@ -3,7 +3,7 @@ from Evaluation_metrics.Attention import keyword_score, Paraphrasing_check, simi
 from Evaluation_metrics.Empathy import empathy_check
 from Evaluation_metrics.Greetings_ownership import check_greetings, check_ownership
 from Evaluation_metrics.Interruption import interuptions
-from Evaluation_metrics.satisfaction import explicit_check, implicit_check
+from Evaluation_metrics.satisfaction import sentiment_trajectory, explicit_check, implicit_check
 from Evaluation_metrics.Talk_to_listen import talk_to_listen
 
 def Normalize_attention(customer_utterance_string, agent_utterance_string, customer_utterance_list, agent_utterance_list):
@@ -45,7 +45,7 @@ def Empathy(dialogue_diarized_string):
     emotion_recognition = float(empathy_dict.get('emotion_recognition', 0))
     emotion_validation = float(empathy_dict.get('emotion_validation', 0))
     support_intent = float(empathy_dict.get('support_intent', 0))
-
+    
     final_empathy_score = emotion_recognition + emotion_validation + support_intent
     return final_empathy_score/3
 
@@ -64,13 +64,15 @@ def Greet_Ownership(agent_utterance_list):
 
 
 def Interuptions(corrected_utterances):
-    '''
+    """
     Check for interruptions in the conversation.
     
-    Args: corrected_utterances: List of utterance dictionaries with speaker labels
+    Args:
+        corrected_utterances: List of utterance dictionaries with speaker labels
     
-    Returns: bool: True if interruption detected, False otherwise
-    '''
+    Returns:
+        bool: True if interruption detected, False otherwise
+    """
     interuption_bool = False  # Initialize to False (no interruption by default)
     
     for i, u in enumerate(corrected_utterances):
@@ -82,29 +84,39 @@ def Interuptions(corrected_utterances):
     return interuption_bool
 
 def Satisfaction(customer_utterance_list, portion=0.3):
-    '''
-    Calculate customer satisfaction score.
+    """
+    Calculate customer satisfaction score and show the emotion trajectory
     
-    Args: customer_utterance_list: List of customer utterance dictionaries, portion: Portion of conversation to analyze (default 0.3 = last 30%)
+    Args:
+        customer_utterance_list: List of customer utterance dictionaries
+        portion: Portion of conversation to analyze (default 0.3 = last 30%)
     
-    Returns: Final satisfaction score (0-1)
-    '''
+    Returns:
+        Final satisfaction score (0-1), Satisfaction trajecory of the customer
+    """
+
+    trajectory = sentiment_trajectory(customer_utterance_list)
+
     explicit_score = explicit_check(customer_utterance_list, portion=portion)
     implicit_score = implicit_check(customer_utterance_list, portion=portion)
     final_satisfaction_score = (explicit_score + implicit_score) / 2
-    return final_satisfaction_score
+
+    return final_satisfaction_score, trajectory
 
 
 def Talk_to_listen_ratio(dialogue_string, dialogue_dict):
-    '''
+    """
     Calculate talk-to-listen ratio score.
     
-    Args: dialogue_string: String representation of dialogue, dialogue_dict: Full dialogue dictionary with utterances
+    Args:
+        dialogue_string: String representation of dialogue
+        dialogue_dict: Full dialogue dictionary with utterances
     
-    Returns: 0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
-    '''
+    Returns:
+        0 if unhealthy ratio, 1 if healthy ratio (0.3-0.7)
+    """
     t2l = talk_to_listen(dialogue_string, dialogue_dict)
-    if t2l > 0.7 or t2l < 0.3:
-        return 0
-    else:
-        return 1 
+
+    if t2l < 0.5:
+        print(f'This clearly states that the Agent was trying to resolve the issue')
+    

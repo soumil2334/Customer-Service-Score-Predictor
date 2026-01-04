@@ -93,11 +93,11 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import spacy
+import matplotlib.pyplot as plt
 
 model= SentenceTransformer("all-MiniLM-L6-v2")
 nlp=spacy.load("en_core_web_sm")
 sentiment_analyzer = SentimentIntensityAnalyzer()
-
 
 def keywords_func(sentence:str):
     doc=nlp(sentence.lower())
@@ -108,7 +108,6 @@ def keywords_func(sentence:str):
                 set1.add(Token.lemma_)
     return set1
 
-
 def sentiment_score(text: str) -> float:
     """
     Returns compound sentiment score in range [-1, 1]
@@ -117,7 +116,30 @@ def sentiment_score(text: str) -> float:
     """
     return sentiment_analyzer.polarity_scores(text)["compound"]
 
-def traje
+def sentiment_trajectory(customer_utterance_list: list[dict]):
+    '''
+    To show the trajecotry of the customer emotion through out the conversation
+    '''
+    fig, ax=plt.subplots() #fig represent the whole plot as an image, while the ax is the graph/plot 
+
+    traj_score=[]
+    time_of_observation=[]
+
+    for u in customer_utterance_list:
+        text=u.get('text')
+        time_stamp=(u.get('start')+u.get('end'))/2
+
+        sentiment_state=sentiment_score(text)
+
+        traj_score.append(sentiment_state)
+        time_of_observation.append(time_stamp)
+    
+    ax.plot(time_of_observation, traj_score)
+    ax.set_xlabel("Time (ms)")
+    ax.set_ylabel("Emotion sentiment score")
+    ax.set_title("Line graph between two values")
+    
+    return fig, ax
 
 explicit_embedding=model.encode(
     sentences= Explicit_statements,
@@ -126,9 +148,7 @@ explicit_embedding=model.encode(
 # Pre-compute embeddings for implicit satisfaction patterns
 implicit_patterns_embedding = model.encode(
     sentences=IMPLICIT_SATISFACTION_PATTERNS,
-    normalize_embeddings=True
-)
-
+    normalize_embeddings=True)
 
 def explicit_check(customer_dict_list:list[dict], portion= 0.3):
     '''
@@ -156,14 +176,12 @@ def explicit_check(customer_dict_list:list[dict], portion= 0.3):
     avg_score=(avg_score+1)/2
     return avg_score
 
-
 def _has_negative_context(text: str) -> bool:
     text_lower = text.lower()
     for indicator in NEGATIVE_CONTEXT_INDICATORS:
         if indicator in text_lower:
             return True
     return False
-
 
 def _calculate_semantic_similarity(text: str) -> float:
     '''
@@ -178,7 +196,6 @@ def _calculate_semantic_similarity(text: str) -> float:
     similarity_scores = similarity_scores.flatten()
     max_similarity = np.max(similarity_scores)
     return max(0.0, max_similarity)
-
 
 def _calculate_keyword_match_score(text: str) -> float:
     '''
@@ -208,7 +225,6 @@ def _get_contextual_sentiment(text: str, prev_text: str = "", next_text: str = "
     
     normalized_sentiment = (current_sentiment + 1) / 2
     return max(0.0, min(1.0, normalized_sentiment))
-
 
 def implicit_check(customer_dict_list: list[dict], portion: float = 0.4):
     '''
