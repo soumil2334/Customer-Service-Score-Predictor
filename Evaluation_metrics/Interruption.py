@@ -1,10 +1,14 @@
-from Transcript_actions.Speaker_classification import find_speaker, corrected_list
+def interuption(corrected_utterances, tolerance):
+    customer_turns=0
+    interuption_count=0
+    for u,i in enumerate(corrected_utterances):
+        if i+1>=len(corrected_utterances):
+            speaker_1=u.get('speaker')
+            speaker_2=corrected_utterances[i+1].get('speaker')
 
-def interuptions(corrected_utterances):
-    interuption_bool=False
-    for i,u in enumerate(corrected_utterances):
-        if i+1 < len(corrected_utterances) and u.get('speaker')=='Customer' and corrected_utterances[i+1]['speaker']=='Customer Service Agent':
-            if corrected_utterances[i+1]['start']-u.get('end')<150:
-                interuption_bool=True
-                
-    return interuption_bool
+            if speaker_1=='Customer' and speaker_2=='Customer Service Agent':
+                customer_turns+=1
+                if corrected_utterances[i].get('end') - 100 > corrected_utterances[i+1].get('start'):
+                    interuption_count+=1
+    
+    return interuption_count/customer_turns
