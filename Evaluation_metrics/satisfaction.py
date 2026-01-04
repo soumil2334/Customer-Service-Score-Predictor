@@ -112,9 +112,12 @@ def keywords_func(sentence:str):
 def sentiment_score(text: str) -> float:
     """
     Returns compound sentiment score in range [-1, 1]
+    compound is as in overall sentiment
     -ve or +ve implies the emotion state
     """
     return sentiment_analyzer.polarity_scores(text)["compound"]
+
+def traje
 
 explicit_embedding=model.encode(
     sentences= Explicit_statements,
@@ -129,7 +132,7 @@ implicit_patterns_embedding = model.encode(
 
 def explicit_check(customer_dict_list:list[dict], portion= 0.3):
     '''
-    1. Generated explicit phrases that shows satisfied emotions via GPT
+    1. Generated explicit phrases via GPT that shows satisfied emotions
     2. Iterating over customer utterances to check for similar
        phrases with the help of sentence & phrases embeddings
        with cosine_similarity.
@@ -150,15 +153,11 @@ def explicit_check(customer_dict_list:list[dict], portion= 0.3):
         score=np.max(similarity_score)
         semantic_list.append(score)
     avg_score=np.mean(semantic_list)
-    if avg_score<0:
-        avg_score=0
+    avg_score=(avg_score+1)/2
     return avg_score
 
 
 def _has_negative_context(text: str) -> bool:
-    '''
-    Check if text contains negative context indicators that suggest dissatisfaction.
-    '''
     text_lower = text.lower()
     for indicator in NEGATIVE_CONTEXT_INDICATORS:
         if indicator in text_lower:
@@ -197,9 +196,6 @@ def _calculate_keyword_match_score(text: str) -> float:
     return min(1.0, match_ratio * 2)  
 
 def _get_contextual_sentiment(text: str, prev_text: str = "", next_text: str = "") -> float:
-    """
-    Calculate sentiment considering context from surrounding utterances.
-    """
     current_sentiment = sentiment_score(text)
     if _has_negative_context(text):
         current_sentiment = current_sentiment * 0.5  
@@ -278,36 +274,23 @@ def implicit_check(customer_dict_list: list[dict], portion: float = 0.4):
     
     scores_array = np.array(utterance_scores)
     
-    # Calculate mean and max scores for normalization
     mean_score = np.mean(scores_array)
     max_score = np.max(scores_array)
     
-    # Boost score if multiple utterances show satisfaction (more reliable)
     if len(utterance_scores) >= 2:
         mean_score = min(1.0, mean_score * 1.15)
     
-    # Normalize using weighted combination of mean and max
-    # This gives credit for both consistent satisfaction and peak satisfaction moments
-    # Mean represents overall satisfaction level, max represents best moments
     normalized_score = (mean_score * 0.7 + max_score * 0.3)
     
-    # Apply min-max normalization to ensure proper scaling
-    # Scale the score to better utilize the [0, 1] range
-    # This makes it more comparable to explicit_check scores
     if normalized_score > 0:
-        # Apply a scaling factor to ensure scores are well-distributed
-        # Lower threshold for implicit satisfaction (0.3) vs explicit (0.5)
         scaled_score = normalized_score
         
-        # If we have multiple strong signals, boost the score
         strong_signals = np.sum(scores_array > 0.5)
         if strong_signals >= 2:
             scaled_score = min(1.0, scaled_score * 1.1)
         
         normalized_score = scaled_score
     
-    # Ensure the score is properly bounded in [0, 1] range
     final_score = max(0.0, min(1.0, normalized_score))
     
-    # Round to 4 decimal places for consistency with explicit_check
     return round(final_score, 4)

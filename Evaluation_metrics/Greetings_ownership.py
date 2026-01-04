@@ -90,7 +90,7 @@ def check_greetings(
     agent_list:list[dict])-> int:
     final_value=0
     for i, line in enumerate(agent_list):
-        if i<3: #checking if the agent greeted in the first 5 lines
+        if i<3: #checking if the agent greeted in the first 3 lines
             sentence_embedding=model.encode(
                 sentences=line.get('text'),
                 normalize_embeddings=True
