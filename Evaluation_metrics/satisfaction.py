@@ -197,12 +197,7 @@ def _calculate_semantic_similarity(text: str) -> float:
     max_similarity = np.max(similarity_scores)
     return max(0.0, max_similarity)
 
-def _calculate_keyword_match_score(text: str) -> float:
-    '''
-    Calculate keyword matching score with implicit acceptance words.
-    Returns normalized score [0, 1] based on keyword overlap.
-    '''
-    implicit_keywords = keywords_func(IMPLICIT)
+def _calculate_keyword_match_score(implicit_keywords:str,text: str) -> float:
     sentence_keywords = keywords_func(text)
     
     if len(implicit_keywords) == 0:
@@ -227,22 +222,7 @@ def _get_contextual_sentiment(text: str, prev_text: str = "", next_text: str = "
     return max(0.0, min(1.0, normalized_sentiment))
 
 def implicit_check(customer_dict_list: list[dict], portion: float = 0.4):
-    '''
-    Improved implicit satisfaction detection using multiple signals:
-    
-    1. Semantic Similarity: Uses embeddings to find satisfaction patterns beyond keywords
-    2. Context-Aware Sentiment: Considers surrounding conversation context
-    3. Keyword Matching: Enhanced keyword overlap detection
-    4. Conversation Progression: Weights recent utterances more heavily
-    5. Negative Signal Detection: Identifies dissatisfaction even with implicit words
-    
-    Args:
-        customer_dict_list: List of customer utterance dictionaries with 'text' key
-        portion: Portion of conversation to analyze (default 0.4 = last 40%)
-    
-    Returns:
-        Implicit satisfaction score [0, 1]
-    '''
+
     if not customer_dict_list:
         return 0.0
     
@@ -271,7 +251,7 @@ def implicit_check(customer_dict_list: list[dict], portion: float = 0.4):
                 continue  
 
         semantic_score = _calculate_semantic_similarity(text)
-        keyword_score = _calculate_keyword_match_score(text)
+        keyword_score = _calculate_keyword_match_score (IMPLICIT_ACCEPTANCE_WORDS, text)
         contextual_sentiment = _get_contextual_sentiment(text, prev_text, next_text)
         
         if semantic_score > 0.3 or keyword_score > 0.1 or contextual_sentiment > 0.5:

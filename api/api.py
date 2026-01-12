@@ -76,6 +76,10 @@ async def Evaluate_score(
             detail=f'Unexpected Error occurred : {str(e)}'
         )
 
+# @app.get('/play_audio')
+
+
+
 if __name__ ==  '__main__':
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port=8000)

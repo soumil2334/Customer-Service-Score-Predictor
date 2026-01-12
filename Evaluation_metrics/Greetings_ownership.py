@@ -78,7 +78,7 @@ CANONICAL_OWNERSHIP = (
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-
+import logging
 model= SentenceTransformer("all-MiniLM-L6-v2")
 
 greetings_embeddings=model.encode(
@@ -88,9 +88,9 @@ greetings_embeddings=model.encode(
 
 def check_greetings(
     agent_list:list[dict])-> int:
-    final_value=0
+    values=[]
     for i, line in enumerate(agent_list):
-        if i<3: #checking if the agent greeted in the first 3 lines
+        if i<5: #checking if the agent greeted in the first 5 lines
             sentence_embedding=model.encode(
                 sentences=line.get('text'),
                 normalize_embeddings=True
@@ -100,16 +100,18 @@ def check_greetings(
                 greetings_embeddings  #(3,384)
             ) 
             similarity_matrix=similarity_matrix.flatten()
-            max_value=np.max(similarity_matrix)
-            if max_value>0.65:
-                final_value=1
-                break
-
+            values.append(max(similarity_matrix))
+    
+    index, max_value=max(enumerate(values), key=lambda x: x[1])
+    if max_value>0.75:
+        greet_sentence=agent_list[index].get('text')
+    else:
+        max_value=0
+        greet_sentence=''
+    return max_value, greet_sentence
             #Let's say greeting_embeddings is for 3 sentences so the greeting embeddings will have the shape (3, 384)
             #and the sentence embedding will have a shape (384,) so after [sentence_embedding] it will be (1, 384)\
             # cosine similarity will be of shape (1, 3) eg. [0.45, 0.78, 0,12] 
-    
-    return final_value
 
 ownership_embeddings=model.encode(
     sentences=CANONICAL_OWNERSHIP,
@@ -131,19 +133,17 @@ def check_ownership(agent_list:list[dict])-> float:
             [sentence_embedding],
             ownership_embeddings
         )
-        
-        # Get average similarity for this utterance
-        utterance_score = np.mean(similarity_matrix)
-        all_scores.append(utterance_score)
+        max_Score=np.max(similarity_matrix)
+        all_scores.append(max_Score)
     
-    if not all_scores:
-        return 0.0
-    
-    average_score = np.mean(all_scores)
+    score = np.mean(all_scores)
+    index, max_score=max(enumerate(all_scores), key= lambda x : x[1])
+
+    max_ownership_sentence=agent_list[index].get('text')
     
     # Normalize from [-1, 1] to [0, 1] and ensure bounds
-    normalized_score = (average_score + 1) / 2
-    return max(0.0, min(1.0, normalized_score))
+    normalized_score = (score + 1) / 2
+    return max(0.0, min(1.0, normalized_score)), max_ownership_sentence
 
 
 

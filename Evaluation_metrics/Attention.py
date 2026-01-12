@@ -37,28 +37,27 @@ def keyword_score(customer_text, agent_text):
     agent_keywords=keyword_extractor(agent_text)
 
     matched_words=customer_keywords.intersection(agent_keywords)
-    if len(customer_keywords) == 0:
+    if len(agent_keywords) == 0:
         matched_score = 0.0
     else:
-        matched_score = len(matched_words) / len(customer_keywords)
+        matched_score = len(matched_words) / len(agent_keywords)
     return matched_score
 
-def Paraphrasing_check(customer_text, agent_text):
-    try:
-        entailment_score=encoder_model(agent_text, customer_text)
-    except Exception:
-        logger.exception("Paraphrasing failed")
-        raise
-    return entailment_score
+# def Paraphrasing_check(customer_text, agent_text):
+#     try:
+#         entailment_score=encoder_model(agent_text, customer_text)
+#     except Exception:
+#         logger.exception("Paraphrasing failed")
+#         raise
+#     return entailment_score
 
 
 def similarity_score(customer_list:list, agent_list:list):
-    semantic_score_sum=0
-    entailment_score=[]
+    sentences=[]
     count=[]
     n=0
     for i, texts in enumerate(customer_list):
-        if i==0 or i==len(customer_list)-1:
+        if i==0:
             continue
         text1=customer_list[i-1].get('text')+customer_list[i].get('text')+customer_list[i+1].get('text')
         text2=agent_list[i-1].get('text')+agent_list[i].get('text')+agent_list[i+1].get('text')
@@ -67,12 +66,13 @@ def similarity_score(customer_list:list, agent_list:list):
         embeddings2=model.encode(text2, normalize_embeddings=True)
 
         score=cosine_similarity(embeddings1, embeddings2)[0][0]
+        if score > 0.5: sentences.append(score, str(f'Customer : {text1}\n Customer Care Agent : {text2}'))
         count.append(score)
 
 # adding the weight value of the semantic score
 # more recent conversation will have more importance in overall conversation 
 # taking index of the semantic score in the list as the weight
-
+    
     weighted_sum=0
     total_weight=0
     for i, c in enumerate(count):
@@ -88,10 +88,10 @@ def similarity_score(customer_list:list, agent_list:list):
     # Using formula: (score + 1) / 2
     normalized_score = (weight_semantic_score+1)/2
 
-    return round(normalized_score, 2)
+    return round(normalized_score, 2), sentences
 
 #takingg mean of both the values
 
-def overall_attention(similarity_score, keyword_score, paraphrasing_score):
-    return round((similarity_score+keyword_score+paraphrasing_score)/3, 2)
+def overall_attention(similarity_score, keyword_score):
+    return round((similarity_score+keyword_score)/2, 2)
 
